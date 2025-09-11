@@ -1,4 +1,4 @@
-name: Check Changelog
+name: Basic checks
 
 on:
   push:
@@ -11,7 +11,6 @@ jobs:
   changelog:
     runs-on: ubuntu-latest
     env:
-      TAG: ${{ github.ref_name }}
       IS_TAG_PUSH: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
     defaults:
       run:
@@ -24,4 +23,16 @@ jobs:
         uses: geopozo/changelogtxt-parser
         with:
           working-directory: ./src/py/
-          tag-check: ${{ env.IS_TAG_PUSH == 'true' && env.TAG || '' }}
+          tag-check: ${{ env.IS_TAG_PUSH == 'true' && github.ref_name || '' }}
+  config-files:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src/py/
+    steps:
+      - name: Check .editorconfig exists
+        run: |
+          test -e .editorconfig || exit 1
+      - name: Check .pre-commit-config exists
+        run: |
+          test -e .pre-commit-config.y*ml || exit 1
