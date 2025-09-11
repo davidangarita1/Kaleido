@@ -1,18 +1,27 @@
-name: Check Changelog Format
+name: Check Changelog
 
 on:
   push:
+    tags:
+      - "*"
+    branches:
+      - "*"
 
 jobs:
-  checking-format:
+  changelog:
     runs-on: ubuntu-latest
     env:
-      CHANGELOGTXT: git+https://github.com/geopozo/changelogtxt-parser
+      TAG: ${{ github.ref_name }}
+      IS_TAG_PUSH: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
     defaults:
       run:
         working-directory: ./src/py/
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-      - name: Check format
-        run: uv run --python 3.12 --with "$CHANGELOGTXT" changelogtxt check-format
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check Changelog
+        id: changelog
+        uses: geopozo/changelogtxt-parser
+        with:
+          working-directory: ./src/py/
+          tag-check: ${{ env.IS_TAG_PUSH == 'true' && env.TAG || '' }}
