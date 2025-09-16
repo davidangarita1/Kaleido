@@ -1,3 +1,6 @@
+v1.2.0
+- Add plotly dependency: use its encoder instead of our custom.
+
 v1.1.0
 - Add testing
 - Fix a variety of type bugs
