@@ -38,15 +38,15 @@ wheels = [
 
 [[package]]
 name = "choreographer"
-version = "1.0.10"
+version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "logistro" },
     { name = "simplejson" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/71/0e/88c2a0307e27f40bd0ce18e66ba2c8f7327b95b23adc51ea57a08cb96797/choreographer-1.0.10.tar.gz", hash = "sha256:7adf84a0d6a6054386d5cce013fdcadb2426479e49c9b0cb06af7d3712ed263c", size = 40455, upload-time = "2025-08-22T20:37:25.461Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/25/8d/eb8c14440082ed49d46f5972d4f610134be01646f10b9859f4d6af15ec3e/choreographer-1.1.0.tar.gz", hash = "sha256:45b8c9c6eea1dd9d7f2ce3a2c66e7680e805420bbe3f8aefaaa8281fdb1645bd", size = 41441, upload-time = "2025-09-17T17:24:04.602Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d3/c2/82389f6e20098a414ddcf88d3b8032809b7a66e70f9bc5264f81beb24b4a/choreographer-1.0.10-py3-none-any.whl", hash = "sha256:b23ec2409f38ec89a544558eadeb19688746bab9a0f47e7115477d6e80a14a41", size = 51300, upload-time = "2025-08-22T20:37:24.372Z" },
+    { url = "https://files.pythonhosted.org/packages/49/0c/057be501db591f2725c5f04a4ccfbe668079817f2be88837bf9c884c0aff/choreographer-1.1.0-py3-none-any.whl", hash = "sha256:82c925eeaf61ef42b8b9c665faeda8b0d15753190838ddbbf43059fe48b56f57", size = 52097, upload-time = "2025-09-17T17:24:03.173Z" },
 ]
 
 [[package]]
@@ -135,7 +135,6 @@ dependencies = [
     { name = "orjson", version = "3.10.15", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "orjson", version = "3.11.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "packaging" },
-    { name = "plotly" },
     { name = "pytest-timeout" },
 ]
 
@@ -164,11 +163,10 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "choreographer", specifier = ">=1.0.10" },
+    { name = "choreographer", specifier = ">=1.1.0" },
     { name = "logistro", specifier = ">=1.0.8" },
     { name = "orjson", specifier = ">=3.10.15" },
     { name = "packaging" },
-    { name = "plotly", specifier = ">=6.3.0" },
     { name = "pytest-timeout", specifier = ">=2.4.0" },
 ]
 
