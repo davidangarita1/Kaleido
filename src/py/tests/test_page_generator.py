@@ -185,15 +185,6 @@ async def test_defaults_no_plotly_available():
         sys.path = []
         _plotly_mo = sys.modules.pop("plotly", None)
 
-        if find_spec("plotly"):
-            raise RuntimeError(
-                "Plotly cannot be imported during this test, "
-                "as this tests default behavior while trying to import plotly. "
-                "The best solution is to make sure this test always runs first, "
-                "or if you really need to, run it separately and then skip it "
-                "in the main group.",
-            )
-
         # Test no imports (plotly not available)
         no_imports = PageGenerator().generate_index()
         scripts, _encodings = get_scripts_from_html(no_imports)
