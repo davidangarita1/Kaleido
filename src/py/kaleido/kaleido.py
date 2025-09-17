@@ -12,10 +12,8 @@ from urllib.parse import unquote, urlparse
 
 import choreographer as choreo
 import logistro
-from choreographer import channels
 from choreographer.errors import ChromeNotFoundError
 from choreographer.utils import TmpDirectory
-from plotly.utils import PlotlyJSONEncoder
 
 from ._fig_tools import _is_figurish, build_fig_spec
 from ._kaleido_tab import _KaleidoTab
@@ -30,7 +28,14 @@ if TYPE_CHECKING:
 
 _logger = logistro.getLogger(__name__)
 
-channels.register_custom_encoder(PlotlyJSONEncoder)
+try:
+    from choreographer import channels
+    from plotly.utils import PlotlyJSONEncoder
+
+    channels.register_custom_encoder(PlotlyJSONEncoder)
+    _logger.debug("Successfully registered PlotlyJSONEncoder.")
+except ImportError:
+    _logger.debug("Couldn't import plotly- skipping.")
 
 # Show a warning if the installed Plotly version
 # is incompatible with this version of Kaleido
