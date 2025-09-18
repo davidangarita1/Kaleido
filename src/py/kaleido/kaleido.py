@@ -29,13 +29,13 @@ if TYPE_CHECKING:
 _logger = logistro.getLogger(__name__)
 
 try:
+    from plotly.utils import PlotlyJSONEncoder  #  noqa: I001
     from choreographer import channels
-    from plotly.utils import PlotlyJSONEncoder
 
     channels.register_custom_encoder(PlotlyJSONEncoder)
     _logger.debug("Successfully registered PlotlyJSONEncoder.")
-except ImportError:
-    _logger.debug("Couldn't import plotly- skipping.")
+except ImportError as e:
+    _logger.debug(f'Couldn\'t import plotly due to "{e!s}" - skipping.')
 
 # Show a warning if the installed Plotly version
 # is incompatible with this version of Kaleido
