@@ -1,5 +1,5 @@
 v1.2.0
-- Add plotly dependency: use its encoder instead of our custom.
+- Try to use plotly JSON encoder instead of default
 
 v1.1.0
 - Add testing
