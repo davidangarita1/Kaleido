@@ -52,6 +52,9 @@ async def get_latest_version() -> str:
 
 async def create_pr(latest_version: str) -> None:
     branch = f"bot/update-cdn-{latest_version}"
+    title = f"Update Plotly.js CDN to v{latest_version}"
+    body = f"This PR updates the CDN URL to v{latest_version}."
+    
     _, err, brc_eval = await run(
         ["gh", "api", f"repos/{REPO}/branches/{branch}", "--silent"]
     )
@@ -73,7 +76,7 @@ async def create_pr(latest_version: str) -> None:
         print(f"Pull request for '{branch}' already exists", file=sys.stderr)
         sys.exit(1)
 
-    title = f"Update Plotly.js CDN to v{latest_version}"
+    
     file_updated = changelog.update(latest_version, title, GITHUB_WORKSPACE)
 
     if not file_updated:
@@ -100,7 +103,7 @@ async def create_pr(latest_version: str) -> None:
         print(push_err.decode(), file=sys.stderr)
         sys.exit(1)
 
-    body = f"This PR updates the CDN URL to v{latest_version}."
+    
     new_pr, pr_err, pr_eval = await run(
         ["gh", "pr", "create", "-B", "master", "-H", branch, "-t", title, "-b", body]
     )
