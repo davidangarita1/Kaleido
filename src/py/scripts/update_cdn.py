@@ -1,3 +1,13 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#  "aiohttp",
+#  "changelogtxt_parser @ git+https://github.com/geopozo/changelogtxt-parser",
+#  "jq",
+#  "semver",
+# ]
+# ///
+
 import asyncio
 import json
 import os
