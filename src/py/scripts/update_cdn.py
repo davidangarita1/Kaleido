@@ -74,7 +74,7 @@ async def create_pr(latest_version: str) -> None:
         sys.exit(1)
 
     title = f"Update Plotly.js CDN to v{latest_version}"
-    file_updated = changelog.update_version(latest_version, title, GITHUB_WORKSPACE)
+    file_updated = changelog.update(latest_version, title, GITHUB_WORKSPACE)
 
     if not file_updated:
         print("Failed to update changelog", file=sys.stderr)
