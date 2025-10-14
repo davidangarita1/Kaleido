@@ -58,15 +58,16 @@ async def create_pr(latest_version: str) -> None:
     _, err, brc_eval = await run(
         ["gh", "api", f"repos/{REPO}/branches/{branch}", "--silent"]
     )
+    branch_exists = (brc_eval == 0)
 
-    if brc_eval:
+    if branch_exists:
+        print(f"The branch {branch} already exists", file=sys.stderr)
+        sys.exit(1)
+    else:
         msg = err.decode()
         if "HTTP 404" not in msg:
             print(msg, file=sys.stderr)  # unexpected errors
             sys.exit(1)
-    else:
-        print(f"The branch {branch} already exists", file=sys.stderr)
-        sys.exit(1)
 
     pr, _, _ = await run(
         ["gh", "pr", "list", "-R", REPO, "-H", branch, "--state", "all"]
