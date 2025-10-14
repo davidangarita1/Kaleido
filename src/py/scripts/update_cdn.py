@@ -11,16 +11,17 @@
 import asyncio
 import json
 import os
-import pathlib
 import subprocess
 import sys
+from pathlib import Path
 
 import aiohttp
+import changelogtxt_parser as changelog
 import jq
 import semver
+
 from kaleido._page_generator import DEFAULT_PLOTLY
 from kaleido._page_generator import __file__ as FILE_PATH
-import changelogtxt_parser as changelog
 
 REPO = os.environ["REPO"]
 GITHUB_WORKSPACE = os.environ["GITHUB_WORKSPACE"]
@@ -121,7 +122,7 @@ async def main() -> None:
 
     cdn_exists = await verify_url(new_cdn)
     if cdn_exists:
-        p = pathlib.Path(FILE_PATH)
+        p = Path(FILE_PATH)
         s = p.read_text(encoding="utf-8").replace(DEFAULT_PLOTLY, new_cdn, 1)
         p.write_text(s, encoding="utf-8")
 
