@@ -59,10 +59,10 @@ async def create_pr(latest_version: str) -> None:
     if brc_eval:
         msg = err.decode()
         if "HTTP 404" not in msg:
-            print(msg)  # unexpected errors
+            print(msg, file=sys.stderr)  # unexpected errors
             sys.exit(1)
     else:
-        print(f"The branch {branch} already exists")
+        print(f"The branch {branch} already exists", file=sys.stderr)
         sys.exit(1)
 
     pr, _, _ = await run(
@@ -70,14 +70,14 @@ async def create_pr(latest_version: str) -> None:
     )
 
     if pr.decode():
-        print(f"Pull request for '{branch}' already exists")  # err if is empty
+        print(f"Pull request for '{branch}' already exists", file=sys.stderr)
         sys.exit(1)
 
     title = f"Update Plotly.js CDN to v{latest_version}"
     file_updated = changelog.update_version(latest_version, title, GITHUB_WORKSPACE)
 
     if not file_updated:
-        print("Failed to update changelog")
+        print("Failed to update changelog", file=sys.stderr)
         sys.exit(1)
 
     await run(["git", "checkout", "-b", branch])
@@ -97,7 +97,7 @@ async def create_pr(latest_version: str) -> None:
     _, push_err, push_eval = await run(["git", "push", "-u", "origin", branch])
 
     if push_eval:
-        print(push_err.decode())
+        print(push_err.decode(), file=sys.stderr)
         sys.exit(1)
 
     body = f"This PR updates the CDN URL to v{latest_version}."
@@ -105,11 +105,10 @@ async def create_pr(latest_version: str) -> None:
         ["gh", "pr", "create", "-B", "master", "-H", branch, "-t", title, "-b", body]
     )
     if pr_eval:
-        print(pr_err.decode())
+        print(pr_err.decode(), file=sys.stderr)
         sys.exit(1)
 
     print("Pull request:", new_pr.decode().strip())
-    sys.exit(0)
 
 
 async def main() -> None:
