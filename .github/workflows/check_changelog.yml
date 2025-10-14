@@ -1,18 +1,48 @@
-name: Check Changelog Format
+name: Check Changelog
 
 on:
   push:
+    tags:
+      - "*"
+    branches:
+      - "*"
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  checking-format:
+  changelog:
     runs-on: ubuntu-latest
     env:
-      CHANGELOGTXT: git+https://github.com/geopozo/changelogtxt-parser
+      TAG: ${{ github.ref_name }}
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      IS_TAG_PUSH: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+      IS_PR_TO_DEFAULT: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == github.event.repository.default_branch }}
     defaults:
       run:
         working-directory: ./src/py/
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-      - name: Check format
-        run: uv run --python 3.12 --with "$CHANGELOGTXT" changelogtxt check-format
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: compare files
+        if: env.IS_PR_TO_DEFAULT == 'true'
+        run: |
+          set -euo pipefail
+          cat ./CHANGELOG.txt > updated.txt
+          git fetch origin $DEFAULT_BRANCH
+          git show origin/"$DEFAULT_BRANCH":src/py/CHANGELOG.txt > origin.txt
+      - name: Run composite action
+        id: changelog
+        uses: geopozo/changelogtxt-parser@main
+        with:
+          working-directory: ./src/py/
+          tag-check: ${{ env.IS_TAG_PUSH == 'true' && env.TAG || '' }}
+          summarize-news: ${{ env.IS_PR_TO_DEFAULT == 'true' && 'origin.txt updated.txt' || '' }}
+      - name: Check .editorconfig exists
+        run: |
+          test -e .editorconfig || exit 1
+      - name: Check .pre-commit-config exists
+        run: |
+          test -e .pre-commit-config.y*ml || exit 1
