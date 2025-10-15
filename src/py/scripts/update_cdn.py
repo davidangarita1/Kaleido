@@ -54,7 +54,7 @@ async def create_pr(latest_version: str) -> None:
     branch = f"bot/update-cdn-{latest_version}"
     title = f"Update Plotly.js CDN to v{latest_version}"
     body = f"This PR updates the CDN URL to v{latest_version}."
-    
+
     _, err, brc_eval = await run(
         ["gh", "api", f"repos/{REPO}/branches/{branch}", "--silent"]
     )
@@ -77,7 +77,6 @@ async def create_pr(latest_version: str) -> None:
         print(f"Pull request for '{branch}' already exists", file=sys.stderr)
         sys.exit(1)
 
-    
     file_updated = changelog.update(latest_version, title, GITHUB_WORKSPACE)
 
     if not file_updated:
@@ -104,7 +103,6 @@ async def create_pr(latest_version: str) -> None:
         print(push_err.decode(), file=sys.stderr)
         sys.exit(1)
 
-    
     new_pr, pr_err, pr_eval = await run(
         ["gh", "pr", "create", "-B", "master", "-H", branch, "-t", title, "-b", body]
     )
@@ -117,20 +115,20 @@ async def create_pr(latest_version: str) -> None:
 
 async def verify_issue(title: str) -> None:
     issue, _, _ = await run(
-            [
-                "gh",
-                "issue",
-                "list",
-                "-R",
-                REPO,
-                "--search",
-                title,
-                "--state",
-                "all",
-                "--json",
-                "number,state",
-            ]
-        )
+        [
+            "gh",
+            "issue",
+            "list",
+            "-R",
+            REPO,
+            "--search",
+            title,
+            "--state",
+            "all",
+            "--json",
+            "number,state",
+        ]
+    )
     issues = json.loads(issue.decode())
     if issues:
         for issue in issues:
@@ -141,10 +139,11 @@ async def verify_issue(title: str) -> None:
         print(f"Issue '{title}' is closed")
         sys.exit(0)
 
+
 async def create_issue(title: str, body: str) -> None:
     new_issue, issue_err, _ = await run(
-            ["gh", "issue", "create", "-R", REPO, "-t", title, "-b", body]
-        )
+        ["gh", "issue", "create", "-R", REPO, "-t", title, "-b", body]
+    )
     if issue_err:
         print(issue_err.decode())
         sys.exit(1)
@@ -170,7 +169,7 @@ async def main() -> None:
     else:
         title = f"CDN not reachable for Plotly.js v{latest_version}"
         body = f"URL: {new_cdn} - invalid url"
-        
+
         await verify_issue(title)
         await create_issue(title, body)
 
