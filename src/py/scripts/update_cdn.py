@@ -170,39 +170,9 @@ async def main() -> None:
     else:
         title = f"CDN not reachable for Plotly.js v{latest_version}"
         body = f"URL: {new_cdn} - invalid url"
-        brc, _, _ = await run(
-            [
-                "gh",
-                "issue",
-                "list",
-                "-R",
-                REPO,
-                "--search",
-                title,
-                "--state",
-                "all",
-                "--json",
-                "number,state",
-            ]
-        )
-        issues = json.loads(brc.decode())
-        if issues:
-            for issue in issues:
-                if issue.get("state") == "OPEN":
-                    print(f"Issue '{title}' already exists in:")
-                    print(f"https://github.com/{REPO}/issues/{issue.get('number')}")
-                    sys.exit(1)
-            print(f"Issue '{title}' is closed")
-            sys.exit(0)
-
-        new_issue, issue_err, _ = await run(
-            ["gh", "issue", "create", "-R", REPO, "-t", title, "-b", body]
-        )
-        if issue_err:
-            print(issue_err.decode())
-
-        print(f"The issue '{title}' was created in {new_issue.decode().strip()}")
-        sys.exit(1)
+        
+        await verify_issue(title)
+        await create_issue(title, body)
 
 
 asyncio.run(main())
