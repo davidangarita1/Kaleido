@@ -20,8 +20,8 @@ import changelogtxt_parser as changelog
 import jq
 import semver
 
-from kaleido._page_generator import DEFAULT_PLOTLY
-from kaleido._page_generator import __file__ as FILE_PATH
+from py.kaleido._page_generator import DEFAULT_PLOTLY
+from py.kaleido._page_generator import __file__ as FILE_PATH
 
 REPO = os.environ["REPO"]
 GITHUB_WORKSPACE = os.environ["GITHUB_WORKSPACE"]
@@ -113,6 +113,43 @@ async def create_pr(latest_version: str) -> None:
         sys.exit(1)
 
     print("Pull request:", new_pr.decode().strip())
+
+
+async def verify_issue(title: str) -> None:
+    issue, _, _ = await run(
+            [
+                "gh",
+                "issue",
+                "list",
+                "-R",
+                REPO,
+                "--search",
+                title,
+                "--state",
+                "all",
+                "--json",
+                "number,state",
+            ]
+        )
+    issues = json.loads(issue.decode())
+    if issues:
+        for issue in issues:
+            if issue.get("state") == "OPEN":
+                print(f"Issue '{title}' already exists in:")
+                print(f"https://github.com/{REPO}/issues/{issue.get('number')}")
+                sys.exit(1)
+        print(f"Issue '{title}' is closed")
+        sys.exit(0)
+
+async def create_issue(title: str, body: str) -> None:
+    new_issue, issue_err, _ = await run(
+            ["gh", "issue", "create", "-R", REPO, "-t", title, "-b", body]
+        )
+    if issue_err:
+        print(issue_err.decode())
+        sys.exit(1)
+
+    print(f"The issue '{title}' was created in {new_issue.decode().strip()}")
 
 
 async def main() -> None:
