@@ -28,10 +28,11 @@ GITHUB_WORKSPACE = os.environ["GITHUB_WORKSPACE"]
 
 
 async def run_cmd(commands: list[str]) -> tuple[bytes, bytes, int | None]:
-    p = await asyncio.create_subprocess_exec(
+    proc = await asyncio.create_subprocess_exec(
         *commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
-    return (*(await p.communicate()), p.returncode)
+    stdout, stderr = await proc.communicate()
+    return stdout, stderr, proc.returncode
 
 
 async def verify_url(url: str) -> bool:
