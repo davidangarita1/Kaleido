@@ -45,12 +45,17 @@ async def verify_url(url: str) -> bool:
 
 
 async def get_latest_version() -> str:
-    out, err, _ = await run_cmd(["gh", "api", "repos/plotly/plotly.js/tags", "--paginate"])
-    tags = jq.compile('map(.name | ltrimstr("v"))').input_value(json.loads(out)).first()
-    versions = [semver.VersionInfo.parse(v) for v in tags]
+    out, err, _ = await run_cmd(
+        ["gh", "api", "repos/plotly/plotly.js/tags", "--paginate"]
+    )
     if err:
-        print(err.decode())
+        print(err.decode(), file=sys.stderr)
         sys.exit(1)
+
+    data = json.loads(out)
+    tags = jq.compile('map(.name | ltrimstr("v"))').input_value(data).first()
+    versions = [semver.VersionInfo.parse(v) for v in tags]
+
     return str(max(versions))
 
 
