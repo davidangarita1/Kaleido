@@ -36,9 +36,12 @@ async def run_cmd(commands: list[str]) -> tuple[bytes, bytes, int | None]:
 
 
 async def verify_url(url: str) -> bool:
-    async with aiohttp.ClientSession() as session:
-        async with session.head(url) as response:
-            return response.status == 200
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.head(url) as response:
+                return response.status == 200
+    except aiohttp.ClientError:
+        return False
 
 
 async def get_latest_version() -> str:
