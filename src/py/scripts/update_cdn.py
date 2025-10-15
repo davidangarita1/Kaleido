@@ -27,7 +27,7 @@ REPO = os.environ["REPO"]
 GITHUB_WORKSPACE = os.environ["GITHUB_WORKSPACE"]
 
 
-async def run(commands: list[str]) -> tuple[bytes, bytes, int | None]:
+async def run_cmd(commands: list[str]) -> tuple[bytes, bytes, int | None]:
     p = await asyncio.create_subprocess_exec(
         *commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
@@ -41,7 +41,7 @@ async def verify_url(url: str) -> bool:
 
 
 async def get_latest_version() -> str:
-    out, err, _ = await run(["gh", "api", "repos/plotly/plotly.js/tags", "--paginate"])
+    out, err, _ = await run_cmd(["gh", "api", "repos/plotly/plotly.js/tags", "--paginate"])
     tags = jq.compile('map(.name | ltrimstr("v"))').input_value(json.loads(out)).first()
     versions = [semver.VersionInfo.parse(v) for v in tags]
     if err:
@@ -55,7 +55,7 @@ async def create_pr(latest_version: str) -> None:
     title = f"Update Plotly.js CDN to v{latest_version}"
     body = f"This PR updates the CDN URL to v{latest_version}."
 
-    _, err, brc_eval = await run(
+    _, err, brc_eval = await run_cmd(
         ["gh", "api", f"repos/{REPO}/branches/{branch}", "--silent"]
     )
     branch_exists = (brc_eval == 0)
@@ -69,7 +69,7 @@ async def create_pr(latest_version: str) -> None:
             print(msg, file=sys.stderr)  # unexpected errors
             sys.exit(1)
 
-    pr, _, _ = await run(
+    pr, _, _ = await run_cmd(
         ["gh", "pr", "list", "-R", REPO, "-H", branch, "--state", "all"]
     )
 
@@ -83,9 +83,9 @@ async def create_pr(latest_version: str) -> None:
         print("Failed to update changelog", file=sys.stderr)
         sys.exit(1)
 
-    await run(["git", "checkout", "-b", branch])
-    await run(["git", "add", "."])
-    await run(
+    await run_cmd(["git", "checkout", "-b", branch])
+    await run_cmd(["git", "add", "."])
+    await run_cmd(
         [
             "git",
             "-c",
@@ -97,13 +97,13 @@ async def create_pr(latest_version: str) -> None:
             f"chore: {title}",
         ]
     )
-    _, push_err, push_eval = await run(["git", "push", "-u", "origin", branch])
+    _, push_err, push_eval = await run_cmd(["git", "push", "-u", "origin", branch])
 
     if push_eval:
         print(push_err.decode(), file=sys.stderr)
         sys.exit(1)
 
-    new_pr, pr_err, pr_eval = await run(
+    new_pr, pr_err, pr_eval = await run_cmd(
         ["gh", "pr", "create", "-B", "master", "-H", branch, "-t", title, "-b", body]
     )
     if pr_eval:
@@ -114,7 +114,7 @@ async def create_pr(latest_version: str) -> None:
 
 
 async def verify_issue(title: str) -> None:
-    issue, _, _ = await run(
+    issue, _, _ = await run_cmd(
         [
             "gh",
             "issue",
@@ -141,7 +141,7 @@ async def verify_issue(title: str) -> None:
 
 
 async def create_issue(title: str, body: str) -> None:
-    new_issue, issue_err, _ = await run(
+    new_issue, issue_err, _ = await run_cmd(
         ["gh", "issue", "create", "-R", REPO, "-t", title, "-b", body]
     )
     if issue_err:
