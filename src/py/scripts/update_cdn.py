@@ -137,13 +137,15 @@ async def main() -> None:
             [
                 "gh",
                 "issue",
-                "--json",
-                "number,state",
                 "list",
+                "-R",
+                REPO,
                 "--search",
                 title,
                 "--state",
                 "all",
+                "--json",
+                "number,state",
             ]
         )
         issues = json.loads(brc.decode())
