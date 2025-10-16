@@ -166,13 +166,16 @@ async def main() -> None:
 
     if new_cdn == DEFAULT_PLOTLY:
         print("Already up to date")
-        sys.exit(0)
+        return
 
     cdn_exists = await verify_url(new_cdn)
+
     if cdn_exists:
-        p = Path(FILE_PATH)
-        s = p.read_text(encoding="utf-8").replace(DEFAULT_PLOTLY, new_cdn, 1)
-        p.write_text(s, encoding="utf-8")
+        file_path = Path(FILE_PATH)
+        content = file_path.read_text(encoding="utf-8")
+        updated = content.replace(DEFAULT_PLOTLY, new_cdn, 1)
+        
+        file_path.write_text(updated, encoding="utf-8")
 
         await create_pr(latest_version)
     else:
