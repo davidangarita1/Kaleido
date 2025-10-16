@@ -64,31 +64,31 @@ async def create_pr(latest_version: str) -> None:
     title = f"Update Plotly.js CDN to v{latest_version}"
     body = f"This PR updates the CDN URL to v{latest_version}."
 
-    _, err, brc_eval = await run_cmd(
+    _, brc_err, brc_eval = await run_cmd(
         ["gh", "api", f"repos/{REPO}/branches/{branch}", "--silent"]
     )
-    branch_exists = (brc_eval == 0)
+    branch_exists = brc_eval == 0
 
     if branch_exists:
         print(f"The branch {branch} already exists", file=sys.stderr)
         sys.exit(1)
     else:
-        msg = err.decode()
+        msg = brc_err.decode()
         if "HTTP 404" not in msg:
             print(msg, file=sys.stderr)  # unexpected errors
             sys.exit(1)
 
-    pr, _, _ = await run_cmd(
+    pr_exist, _, _ = await run_cmd(
         ["gh", "pr", "list", "-R", REPO, "-H", branch, "--state", "all"]
     )
 
-    if pr.decode():
+    if pr_exist:
         print(f"Pull request for '{branch}' already exists", file=sys.stderr)
         sys.exit(1)
 
-    file_updated = changelog.update(latest_version, title, GITHUB_WORKSPACE)
-
-    if not file_updated:
+    try:
+        changelog.update(f"v{latest_version}", title, GITHUB_WORKSPACE)
+    except (ValueError, RuntimeError):
         print("Failed to update changelog", file=sys.stderr)
         sys.exit(1)
 
@@ -107,19 +107,22 @@ async def create_pr(latest_version: str) -> None:
         ]
     )
     _, push_err, push_eval = await run_cmd(["git", "push", "-u", "origin", branch])
+    push_failed = push_eval == 1
 
-    if push_eval:
+    if push_failed:
         print(push_err.decode(), file=sys.stderr)
         sys.exit(1)
 
-    new_pr, pr_err, pr_eval = await run_cmd(
+    new_pr_out, pr_err, pr_eval = await run_cmd(
         ["gh", "pr", "create", "-B", "master", "-H", branch, "-t", title, "-b", body]
     )
-    if pr_eval:
+    pr_failed = pr_eval == 1
+
+    if pr_failed:
         print(pr_err.decode(), file=sys.stderr)
         sys.exit(1)
 
-    print("Pull request:", new_pr.decode().strip())
+    print("Pull request:", new_pr_out.decode().strip())
 
 
 async def verify_issue(title: str) -> None:
