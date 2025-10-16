@@ -126,7 +126,7 @@ async def create_pr(latest_version: str) -> None:
 
 
 async def verify_issue(title: str) -> None:
-    issue, _, _ = await run_cmd(
+    issues_out, _, _ = await run_cmd(
         [
             "gh",
             "issue",
@@ -141,15 +141,12 @@ async def verify_issue(title: str) -> None:
             "number,state",
         ]
     )
-    issues = json.loads(issue.decode())
+    issues = json.loads(issues_out.decode())
+
     if issues:
-        for issue in issues:
-            if issue.get("state") == "OPEN":
-                print(f"Issue '{title}' already exists in:")
-                print(f"https://github.com/{REPO}/issues/{issue.get('number')}")
-                sys.exit(1)
-        print(f"Issue '{title}' is closed")
-        sys.exit(0)
+        print(f"Issue '{title}' already exists in:")
+        print(f"https://github.com/{REPO}/issues/{issues[0].get('number')}")
+        sys.exit(1)
 
 
 async def create_issue(title: str, body: str) -> None:
