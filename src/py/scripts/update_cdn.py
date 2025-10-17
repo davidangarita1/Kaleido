@@ -23,6 +23,8 @@ import semver
 from py.kaleido._page_generator import DEFAULT_PLOTLY
 from py.kaleido._page_generator import __file__ as FILE_PATH
 
+# ruff: noqa: T201 allow print in CLI
+
 REPO = os.environ["REPO"]
 GITHUB_WORKSPACE = os.environ["GITHUB_WORKSPACE"]
 
